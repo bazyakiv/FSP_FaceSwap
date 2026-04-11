@@ -1,28 +1,25 @@
-from app_modules.videocapture import VideoStream
+import mediapipe as mp
 import cv2 as cv
+from app_modules.videocapture import VideoStream 
+from app_modules.facedetection import FaceDetector
+
+
 if __name__ == "__main__":
-    videostreamer = VideoStream(0)
-    
-    videostreamer.start();
-    while(True):
-        frame = videostreamer.read()
-       
+    vs = VideoStream()
+    fd = FaceDetector(visualize=True)
+    vs.start() 
+    fd.start()
+    while True:
+        frame = vs.read()
+        
         if frame is not None:
-            cv.imshow("frame", frame)
-        key = cv.waitKey(1) 
+            visualized = fd.update(frame)
+            if visualized is not None:
+                cv.imshow("visualized", visualized)
+            else:
+                cv.imshow("not visualized", frame)
 
-        if key == ord('s'):
-            print("stop")
-            videostreamer.stop()
-
-        if key == ord('r'):
-            print("restarting")
-            videostreamer.start()
-
-        if key == ord('q'):
-            print("quiting")
-            videostreamer.stop()
-            break;
+        if cv.waitKey(1) == ord('q'):
+            break
 
     cv.destroyAllWindows()
-    
