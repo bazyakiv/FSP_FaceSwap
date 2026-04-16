@@ -17,7 +17,7 @@ class VideoStream:
 
         
         self.__capture = cv.VideoCapture(self.src)
-
+        
         if(not self.__capture.isOpened):
             print("Could not open the Camera!");
             return;
@@ -61,6 +61,5 @@ class VideoStream:
             self.__thread.join()
         
         self.__capture.release()
-        
         
         

@@ -5,6 +5,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.vision import drawing_utils
 from mediapipe.tasks.python.vision import drawing_styles
+from mediapipe.tasks.python.vision.drawing_utils import DrawingSpec
 import time
 #PATHS SHORTCUT
 BaseOptions = mp.tasks.BaseOptions
@@ -43,33 +44,35 @@ class FaceDetector:
         landmarks_list = self.last_result.face_landmarks
     
         for landmarks in landmarks_list:
+            spec = DrawingSpec(color=(181,101,100), thickness=2)
             drawing_utils.draw_landmarks(
             image=frame,
             landmark_list=landmarks,
             connections=vision.FaceLandmarksConnections.FACE_LANDMARKS_TESSELATION,
              landmark_drawing_spec=None,
-             connection_drawing_spec=drawing_styles.get_default_face_mesh_tesselation_style()
+             connection_drawing_spec=spec
             )
+            
             drawing_utils.draw_landmarks(
                 image=frame,
                 landmark_list=landmarks,
                 connections=vision.FaceLandmarksConnections.FACE_LANDMARKS_CONTOURS,
                  landmark_drawing_spec=None,
-                 connection_drawing_spec=drawing_styles.get_default_face_mesh_contours_style()
+                 connection_drawing_spec=spec
             )
             drawing_utils.draw_landmarks(
                 image=frame,
                 landmark_list=landmarks,
                 connections=vision.FaceLandmarksConnections.FACE_LANDMARKS_LEFT_IRIS,
                  landmark_drawing_spec=None,
-                 connection_drawing_spec=drawing_styles.get_default_face_mesh_iris_connections_style()
+                 connection_drawing_spec=spec
             )
             drawing_utils.draw_landmarks(
                 image=frame,
                 landmark_list=landmarks,
                 connections=vision.FaceLandmarksConnections.FACE_LANDMARKS_RIGHT_IRIS,
                  landmark_drawing_spec=None,
-                 connection_drawing_spec=drawing_styles.get_default_face_mesh_iris_connections_style()
+                 connection_drawing_spec=spec
             )
         return frame
     def update(self, frame):
@@ -86,7 +89,7 @@ class FaceDetector:
         if self.visualize:
             return self.visualization(frame=frame);
         else:
-            return None;
+            return frame;
 
     def close(self):
         if self.landmarker:
