@@ -13,7 +13,7 @@ FaceLandmarker  = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
-def print_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+def print_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
     print('face landmarker result: {}'.format(result))
 class FaceDetector:
     def __init__(self, visualize=True):
@@ -29,7 +29,7 @@ class FaceDetector:
         self.last_result = None
         self.visualize = visualize;
         
-    def callback(self, result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    def callback(self, result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
          self.last_result = result;
          
     
