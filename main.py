@@ -19,7 +19,7 @@ if __name__ == "__main__":
         
             frame2 = fs.update(fd.last_result,processed_frame);
             if frame2 is not None:
-                cv.imshow("vision", frame2)
+                cv.imshow("vision", frame2);
             
 
         if cv.waitKey(1) == ord('q'):

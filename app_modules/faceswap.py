@@ -73,8 +73,17 @@ class FaceSwap:
         cv.fillConvexPoly(mask, face_outline, 255);
 
         overlay_image = cv.imread("faceswap_image\zelya_face.png")
-        return mask;
+        
+        overlay_width = face_bounding_box[1][0] - face_bounding_box[0][0];
+        overlay_height = face_bounding_box[1][1] - face_bounding_box[0][1];
+        overlay_position = (face_bounding_box[0][0], face_bounding_box[0][1]);
+        overlay_image = cv.resize(src=overlay_image, dsize=(overlay_width, overlay_height), interpolation=cv.INTER_LINEAR);
+        try:
+            frame[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] = overlay_image;
+        except:
+            print("Couldn't paste face into the frame")
+        
+
+        return frame;
         
             
-
-        
