@@ -13,6 +13,11 @@ FACE_OVAL = [
 ]
 
 
+def normalize_image(array):
+    array = np.astype(array, np.float32);
+    return array/255.0
+
+
 
 class FaceSwap:
     def __init__(self):
@@ -66,22 +71,45 @@ class FaceSwap:
         
 
 
-        mask = np.zeros((h,w))
+        mask = np.zeros((h,w), dtype=np.uint8)
+        
         face_outline = np.array([face_points[i] for i in FACE_OVAL])
 
         face_outline = np.array(face_outline)
         cv.fillConvexPoly(mask, face_outline, 255);
+        mask = cv.blur(src=mask, ksize=(15,15));
+        normalized_mask = normalize_image(mask);
+        normalized_mask = np.expand_dims(normalized_mask, axis=-1);
 
-        overlay_image = cv.imread("faceswap_image\zelya_face.png")
+
+        overlay_image = np.astype(cv.imread("faceswap_image\zelya_face.png"), np.float32)
         
         overlay_width = face_bounding_box[1][0] - face_bounding_box[0][0];
         overlay_height = face_bounding_box[1][1] - face_bounding_box[0][1];
         overlay_position = (face_bounding_box[0][0], face_bounding_box[0][1]);
         overlay_image = cv.resize(src=overlay_image, dsize=(overlay_width, overlay_height), interpolation=cv.INTER_LINEAR);
+        
+      
+        
+
         try:
-            frame[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] = overlay_image;
+            mask_roi = normalized_mask[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]]
+
+            foreground = overlay_image * mask_roi ;
+            
+            background = frame * (1.0 - normalized_mask);
+            background = background[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]]
+                
+            together = np.astype(foreground + background, np.uint8);
+                
+            frame[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] = together
+            return frame;
         except:
-            print("Couldn't paste face into the frame")
+            print("Couldn't insert frame");
+        
+    
+        
+
         
 
         return frame;

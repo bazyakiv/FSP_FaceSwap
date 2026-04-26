@@ -7,7 +7,7 @@ from app_modules.faceswap import FaceSwap
 if __name__ == "__main__":
 
     vs = VideoStream()
-    fd = FaceDetector(visualize=True)
+    fd = FaceDetector(visualize=False)
     fs = FaceSwap();
     vs.start() 
     fd.start()
