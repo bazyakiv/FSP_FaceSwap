@@ -7,7 +7,7 @@ from app_modules.faceswap import FaceSwap
 if __name__ == "__main__":
 
     vs = VideoStream()
-    fd = FaceDetector(visualize=True)
+    fd = FaceDetector(visualize=False)
     fs = FaceSwap();
     vs.start() 
     fd.start()
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         
             frame2 = fs.update(fd.last_result,processed_frame);
             if frame2 is not None:
-                cv.imshow("vision", frame2)
+                cv.imshow("vision", frame2);
             
 
         if cv.waitKey(1) == ord('q'):
