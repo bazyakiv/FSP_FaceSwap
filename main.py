@@ -1,13 +1,13 @@
 import mediapipe as mp
 import cv2 as cv
 from app_modules.videocapture import VideoStream 
-from app_modules.facedetection import FaceDetector
+from app_modules.facedetection import FaceDetector_ls
 from app_modules.faceswap import FaceSwap
 
 if __name__ == "__main__":
 
     vs = VideoStream()
-    fd = FaceDetector(visualize=False)
+    fd = FaceDetector_ls(visualize=False) # use the livestream version of the face detector
     fs = FaceSwap();
     vs.start() 
     fd.start()

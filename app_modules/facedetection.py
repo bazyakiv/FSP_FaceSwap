@@ -15,28 +15,13 @@ FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 def print_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
     print('face landmarker result: {}'.format(result))
-class FaceDetector:
-    def __init__(self, visualize=True):
-        self.__options = FaceLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=r"detection_model\face_landmarker.task"),
-            running_mode = VisionRunningMode.LIVE_STREAM,
-            output_face_blendshapes=True,
-            output_facial_transformation_matrixes=True,
-            num_faces = 1,
-            result_callback = self.callback
-        )
-        self.landmarker = None
-        self.last_result = None
-        self.visualize = visualize;
-        
-    def callback(self, result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
-         self.last_result = result;
-         
-    
-    def start(self):
-        self.landmarker = FaceLandmarker.create_from_options(self.__options);
 
-    def visualization(self, frame):
+class FaceDetector:
+     
+     def callback(self, result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
+         self.last_result = result;
+     
+     def visualization(self, frame):
         
         if self.last_result is None or not self.last_result.face_landmarks:
             return frame
@@ -75,6 +60,27 @@ class FaceDetector:
                  connection_drawing_spec=spec
             )
         return frame
+    
+
+
+class FaceDetector_ls(FaceDetector):
+    def __init__(self, visualize=True):
+        self.__options = FaceLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=r"detection_model\face_landmarker.task"),
+            running_mode = VisionRunningMode.LIVE_STREAM,
+            output_face_blendshapes=True,
+            output_facial_transformation_matrixes=True,
+            num_faces = 1,
+            result_callback = self.callback
+        )
+        self.landmarker = None
+        self.last_result = None
+        self.visualize = visualize;
+
+    def start(self):
+        self.landmarker = FaceLandmarker.create_from_options(self.__options);
+
+    
     def update(self, frame):
         if self.landmarker is None or frame is None:
             return
@@ -86,6 +92,44 @@ class FaceDetector:
         timestamp = int(time.time() * 1000)
         self.landmarker.detect_async(image, timestamp)
 
+        if self.visualize:
+            return self.visualization(frame=frame);
+        else:
+            return frame;
+
+    def close(self):
+        if self.landmarker:
+            self.landmarker.close()
+    pass
+
+
+class FaceDetector_img(FaceDetector):    
+    def __init__(self, visualize=True):
+        self.__options = FaceLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=r"detection_model\face_landmarker.task"),
+            running_mode = VisionRunningMode.IMAGE,
+            output_face_blendshapes=True,
+            output_facial_transformation_matrixes=True,
+            num_faces = 1,
+        )
+        self.landmarker = None
+        self.last_result = None
+        self.visualize = visualize;
+    
+    def start(self):
+        self.landmarker = FaceLandmarker.create_from_options(self.__options);
+
+    
+    def read(self, frame):
+        if self.landmarker is None or frame is None:
+            return
+    
+        rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        
+        result = self.landmarker.detect(image)
+        self.last_result = result;
         if self.visualize:
             return self.visualization(frame=frame);
         else:

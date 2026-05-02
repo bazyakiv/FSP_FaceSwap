@@ -1,6 +1,7 @@
 import cv2 as cv
 import mediapipe as mp
 import numpy as np
+from app_modules.facedetection import FaceDetector_img;
 #PATHS SHORTCUT
 
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
@@ -12,18 +13,35 @@ FACE_OVAL = [
     54, 103, 67, 109
 ]
 
+FACE_KEYS = [
+    4,33,263, 10 # Nose Tip, Left/Right inner eye corner, chin
+]
+
+
+img_path = "faceswap_image\zelya_face.png";
+
 
 def normalize_image(array):
     array = np.astype(array, np.float32);
     return array/255.0
 
-
-
 class FaceSwap:
     def __init__(self):
         print("initialized");
+        self.fd = FaceDetector_img(False);
+        self.read_image();
     
-    
+    def read_image(self):
+        self.fd.start();
+        overlay_image = cv.imread(img_path)
+        self.fd.read(overlay_image);
+        self.fd.close();
+        overlay_faces = self.fd.last_result.face_landmarks;
+        try:
+            self.overlay_face = overlay_faces[0]; # get the first face
+        except:
+            return;
+       
 
     def update(self, detection_result: FaceLandmarkerResult, frame): # pyright: ignore[reportInvalidTypeForm]
         if detection_result is None or frame is None:
@@ -36,7 +54,7 @@ class FaceSwap:
         except:
             return frame;
 
-        h,w = frame.shape[:2]; 3 # get the height and width of the frame
+        h,w = frame.shape[:2];  # get the height and width of the frame
         face_points = []
    
        
@@ -47,64 +65,63 @@ class FaceSwap:
             pos_y = int(landmark.y * h);
             face_points.append((pos_x, pos_y)); #FACE OVAL POINTS;
 
-        min_y = face_points[0][1]; # get start y and end y
-        max_y = face_points[0][1];
+    
+        key_facepoints = np.array([face_points[i] for i in FACE_KEYS]) # get the key  points
 
-        min_x = face_points[0][0]; # get start x and end x
-        max_x = face_points[0][0];
-        for points in face_points:
-            pos_x = points[0];
-            pos_y = points[1];
-            if(max_x < pos_x):
-                max_x = pos_x;
-            if(min_x > pos_x):
-                min_x = pos_x;
-        
-            if(max_y < pos_y):
-                max_y = pos_y;
-            if(min_y > pos_y):
-                min_y = pos_y;
 
         
-        face_bounding_box = [(min_x, min_y), (max_x, max_y)]; # create the boundaries of the face
+    
+
+
+        overlay_image = cv.imread(img_path) # get the target face
 
         
 
-
-        mask = np.zeros((h,w), dtype=np.uint8) # create an empty mask
         
-        face_outline = np.array([face_points[i] for i in FACE_OVAL]) # get all the positions from the oval points list
-        face_outline = np.array(face_outline)
 
+        ov_h, ov_w = overlay_image.shape[:2];
+        overlay_face_points = [];
+        for landmark in self.overlay_face:
+            pos_x = int(landmark.x * ov_w); # convert float range(0-1) to integer position
+            pos_y = int(landmark.y * ov_h);
+            overlay_face_points.append((pos_x, pos_y)); #FACE OVAL POINTS;
 
-        cv.fillConvexPoly(mask, face_outline, 255); # create a polygon figure and fill it with white color, that will represent our mask
+        
+
+        
+
+        overlay_key_facepoints = np.array([overlay_face_points[i] for i in FACE_KEYS]) # get the key points
+        overlay_faceoutline = np.array([overlay_face_points[i] for i in FACE_OVAL]) # get all the positions from the oval points list
+
+        
+        
+        mask = np.zeros((ov_h,ov_w), dtype=np.uint8) # create an empty mask
+        
+        cv.fillConvexPoly(mask, overlay_faceoutline, 255); # create a polygon figure and fill it with white color, that will represent our mask
+       
+
+        src_pts = np.float32([overlay_key_facepoints[0], overlay_key_facepoints[1], overlay_key_facepoints[2], overlay_key_facepoints[3]])
+        dst_pts = np.float32([key_facepoints[0], key_facepoints[1], key_facepoints[2],key_facepoints[3]])
+
+        matrix = cv.getPerspectiveTransform(src_pts, dst_pts);
+        overlay_image = cv.warpPerspective(overlay_image, matrix, (w, h))
+        mask = cv.warpPerspective(mask, matrix, (w, h))
+        overlay_image = np.astype(overlay_image, np.float32)
         mask = cv.blur(src=mask, ksize=(15,15)); # blur the edges for smooth transitions
         normalized_mask = normalize_image(mask); # normalize from values from 0-255 to 0-1
         normalized_mask = np.expand_dims(normalized_mask, axis=2); # add the channel axis to the mask, since it only has (h,w) but it needs (h,w,1)
-
-
-        overlay_image = np.astype(cv.imread("faceswap_image\zelya_face.png"), np.float32) # get the target face
-        
-        overlay_width = face_bounding_box[1][0] - face_bounding_box[0][0];
-        overlay_height = face_bounding_box[1][1] - face_bounding_box[0][1];
-        overlay_position = (face_bounding_box[0][0], face_bounding_box[0][1]);
-        overlay_image = cv.resize(src=overlay_image, dsize=(overlay_width, overlay_height), interpolation=cv.INTER_LINEAR); # resize the target face to the boundary size
-        
-      
-        
-
         try:
-            mask_roi = normalized_mask[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] # get the region of interest for the face only
+           
 
-            foreground = overlay_image * mask_roi ; # cut out the target face to match the masks shape
+            foreground = overlay_image * normalized_mask ; # cut out the target face to match the masks shape
             
             background = frame * (1.0 - normalized_mask); # cut out the current face from the original frame
-            background = background[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] # get the ROI of the face
+          
                 
             together = np.astype(foreground + background, np.uint8); # add the layers, and convert them into integer values
                 
-            frame[face_bounding_box[0][1]:face_bounding_box[1][1], face_bounding_box[0][0]:face_bounding_box[1][0]] = together # replace the ROI region with new swapped face
-            return frame; # return the frame!
+        
+            return together; # return the frame!
         except:
             print("Couldn't insert frame");
         
