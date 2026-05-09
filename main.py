@@ -1,28 +1,24 @@
-import mediapipe as mp
+
 import cv2 as cv
-from app_modules.videocapture import VideoStream 
-from app_modules.facedetection import FaceDetector
-from app_modules.faceswap import FaceSwap
+
+
+
+from app_modules.face.processing import FaceProcessor
+
+from app_modules.ui.app import Application
+from app_modules.ui.mainwindow import MainWindow
+from app_modules.ui.faceswappanel import FaceSwapPanel
+
 
 if __name__ == "__main__":
-
-    vs = VideoStream()
-    fd = FaceDetector(visualize=False)
-    fs = FaceSwap();
-    vs.start() 
-    fd.start()
-    while True:
-        frame = vs.read()
-        
-        if frame is not None:
-            processed_frame = fd.update(frame)
-        
-            frame2 = fs.update(fd.last_result,processed_frame);
-            if frame2 is not None:
-                cv.imshow("vision", frame2);
+   
+    app = Application();
+    fp = FaceProcessor()
+    f_panel = FaceSwapPanel(fp)
+    window = MainWindow("FaceSwap", (300,400), (800,600), f_panel)
+  
+    app.run(window);
+ 
             
-
-        if cv.waitKey(1) == ord('q'):
-            break
-
-    cv.destroyAllWindows()
+    
+    
