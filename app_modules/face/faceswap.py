@@ -1,7 +1,7 @@
 import cv2 as cv
 import mediapipe as mp
 import numpy as np
-from app_modules.facedetection import FaceDetector_img;
+from .facedetection import FaceDetector_img;
 #PATHS SHORTCUT
 
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
@@ -15,11 +15,7 @@ FACE_OVAL = [
 
 FACE_KEYS = [
     # Face oval
-    10, 338, 297, 332, 284, 251, 389, 356,
-    454, 323, 361, 288, 397, 365, 379, 378,
-    400, 377, 152, 148, 176, 149, 150, 136,
-    172, 58, 132, 93, 234, 127, 162, 21,
-    54, 103, 67, 109,
+    *FACE_OVAL,
     # Eyebrows
     70, 63, 105, 66, 107,
     336, 296, 334, 293, 300,
@@ -36,12 +32,8 @@ FACE_KEYS = [
 ]
 
 
-img_path = r"faceswap_image\poroh.png";
+img_path = r"faceswap_image\barack.png";
 
-
-def normalize_image(array):
-    array = np.astype(array, np.float32);
-    return array/255.0
 
 
 class FaceSwap:
@@ -79,12 +71,13 @@ class FaceSwap:
                 pos_y = self.ov_h-1
           
             self.overlay_face_points.append((pos_x, pos_y)); 
-
+            
      
         self.overlay_faceoutline = np.array([self.overlay_face_points[i] for i in FACE_OVAL]) # get all the positions from the oval points list
         overlay_keypositions = np.array([self.overlay_face_points[i] for i in FACE_KEYS])
         for pos in overlay_keypositions:
             subdiv.insert((int(pos[0]), int(pos[1])));
+        
         def check_point(point):
             if (point[0] >= 0 and point[0] < self.ov_w) and (point[1] >= 0 and point[1] < self.ov_h):
                 return True;

@@ -76,6 +76,7 @@ class FaceDetector_ls(FaceDetector):
         self.landmarker = None
         self.last_result = None
         self.visualize = visualize;
+        self.last_timestamp = 0
 
     def start(self):
         self.landmarker = FaceLandmarker.create_from_options(self.__options);
@@ -90,6 +91,9 @@ class FaceDetector_ls(FaceDetector):
         image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
         
         timestamp = int(time.time() * 1000)
+        if timestamp <= self.last_timestamp:
+            timestamp = self.last_timestamp + 1;
+        self.last_timestamp = timestamp;
         self.landmarker.detect_async(image, timestamp)
 
         if self.visualize:
