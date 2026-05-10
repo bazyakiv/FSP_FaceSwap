@@ -32,7 +32,6 @@ FACE_KEYS = [
 ]
 
 
-img_path = r"faceswap_image\barack.png";
 
 
 
@@ -40,11 +39,11 @@ class FaceSwap:
     def __init__(self):
         print("initialized");
         self.fd = FaceDetector_img(False);
-        self.read_image();
+        self.image_processed = False;
     
-    def read_image(self):
+    def read_image(self,target_face):
         self.fd.start();
-        self.overlay_image = cv.imread(img_path)
+        self.overlay_image = cv.imread(target_face)
         self.fd.read(self.overlay_image);
         self.fd.close();
         overlay_faces = self.fd.last_result.face_landmarks;
@@ -112,11 +111,13 @@ class FaceSwap:
             triplet = (index1, index2, index3);
            
             self.triangles.append(triplet);
+    
+        self.image_processed = True;
         
        
 
     def update(self, detection_result: FaceLandmarkerResult, frame): # pyright: ignore[reportInvalidTypeForm]
-        if detection_result is None or frame is None:
+        if detection_result is None or frame is None or not self.image_processed:
             return;
 
         faces = detection_result.face_landmarks # face detection face landmarks
