@@ -1,0 +1,35 @@
+
+
+#preview-text{
+    font-family: "Josefin Sans Thin";
+    color:red;
+    font-size:40px;
+
+    border: 2px solid red;
+    border-radius: 25px;
+}
+
+#start-button, #stop-button{
+    font-family: "Josefin Sans SemiBold";
+    font-size: 20px;
+}
+
+#start-button{
+    color: limegreen;
+}
+
+#stop-button{
+    color: red;
+}
+
+#start-button:disabled, #stop-button:disabled{
+    font-family: "Josefin Sans Thin";
+    background-color: rgba(26, 26, 26, 255);
+}
+
+#filevalue{
+    font-size:18px;
+    
+    font-family: "Josefin Sans";
+
+}

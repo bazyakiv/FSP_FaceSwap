@@ -13,9 +13,8 @@ from app_modules.ui.faceswappanel import FaceSwapPanel
 if __name__ == "__main__":
    
     app = Application();
-    fp = FaceProcessor()
-    f_panel = FaceSwapPanel(fp)
-    window = MainWindow("FaceSwap", (300,400), (800,600), f_panel)
+    f_panel = FaceSwapPanel()
+    window = MainWindow("FaceSwap", (100,100), (800,800), f_panel)
   
     app.run(window);
  

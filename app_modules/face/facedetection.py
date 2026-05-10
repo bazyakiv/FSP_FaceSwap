@@ -6,6 +6,8 @@ from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.vision import drawing_utils
 from mediapipe.tasks.python.vision import drawing_styles
 from mediapipe.tasks.python.vision.drawing_utils import DrawingSpec
+from ..misc.relative_path import resource_path
+
 import time
 #PATHS SHORTCUT
 BaseOptions = mp.tasks.BaseOptions
@@ -13,8 +15,7 @@ FaceLandmarker  = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
-def print_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int): # pyright: ignore[reportInvalidTypeForm]
-    print('face landmarker result: {}'.format(result))
+
 
 class FaceDetector:
      
@@ -65,8 +66,9 @@ class FaceDetector:
 
 class FaceDetector_ls(FaceDetector):
     def __init__(self, visualize=True):
+        path = resource_path(r"detection_model\face_landmarker.task");
         self.__options = FaceLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=r"detection_model\face_landmarker.task"),
+            base_options=BaseOptions(model_asset_path=path),
             running_mode = VisionRunningMode.LIVE_STREAM,
             output_face_blendshapes=True,
             output_facial_transformation_matrixes=True,
@@ -109,8 +111,9 @@ class FaceDetector_ls(FaceDetector):
 
 class FaceDetector_img(FaceDetector):    
     def __init__(self, visualize=True):
+        path = resource_path(r"detection_model\face_landmarker.task");
         self.__options = FaceLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=r"detection_model\face_landmarker.task"),
+            base_options=BaseOptions(model_asset_path=path),
             running_mode = VisionRunningMode.IMAGE,
             output_face_blendshapes=True,
             output_facial_transformation_matrixes=True,

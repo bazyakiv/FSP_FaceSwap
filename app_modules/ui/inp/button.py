@@ -4,7 +4,8 @@ class Button(QtWidgets.QPushButton):
     def __init__(self, title, method = None):
         super().__init__();
         self.setText(title);
-        self.setMinimumHeight(30)
+ 
+        self.setMinimumHeight(15)
         if(method is None):
             self.clicked.connect(self.onclick);
         else:
