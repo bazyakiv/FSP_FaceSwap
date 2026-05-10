@@ -1,10 +1,11 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtWidgets import QMessageBox
-
+from ...misc.relative_path import resource_path
 class MessageBox():
     def __init__(self):
         
         self.msg_box = QMessageBox();
+        self.msg_box.setWindowIcon(QtGui.QIcon(resource_path("app_modules/ui/style/msgbox.ico")));
        
 
     def warn(self, message):

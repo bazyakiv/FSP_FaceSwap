@@ -2,3 +2,8 @@
 *.jpg
 __pycache__
 *.pyc
+*.ico
+dist/
+build/
+
+*.spec
