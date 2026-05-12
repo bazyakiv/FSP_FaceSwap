@@ -137,8 +137,6 @@ class FaceSwap:
         
         faceoutline = np.array([face_points[i] for i in FACE_OVAL])
        
-
-        
         
         try:
            copied_frame = np.copy(frame);
@@ -157,6 +155,7 @@ class FaceSwap:
                 
                 srcpoints = []
                 dstpoints = []
+        
                 for point in src_points:
                     pointx = point[0] - src_bounding_box[0]
                     pointy = point[1] - src_bounding_box[1]
@@ -168,20 +167,19 @@ class FaceSwap:
                 
                 d_x, d_y, d_bw, d_bh = dst_bounding_box
                 s_x, s_y, s_bw, s_bh = src_bounding_box
-                mask = np.zeros((d_bh, d_bw), dtype=np.uint8)
-                pad = 10
 
+                mask = np.zeros((d_bh, d_bw), dtype=np.uint8)
                 mask = cv.fillConvexPoly(mask, np.int32(dstpoints), 255);
             
                 
                 matrix = cv.getAffineTransform(
-                np.float32([[p[0]+pad, p[1]+pad] for p in srcpoints]),
+                np.float32(srcpoints),
                 np.float32(dstpoints)
                 )
+                
                 triangle_region = self.overlay_image[
-                max(0, s_y-pad):min(self.ov_h, s_y+s_bh+pad),
-                max(0, s_x-pad):min(self.ov_w, s_x+s_bw+pad)
-]
+                max(0, s_y):min(self.ov_h, s_y+s_bh),
+                max(0, s_x):min(self.ov_w, s_x+s_bw)]
                 
                 warped = cv.warpAffine(triangle_region, matrix, (d_bw, d_bh), borderMode=cv.BORDER_REFLECT)
 
