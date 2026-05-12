@@ -4,9 +4,11 @@ from ..face.processing import FaceProcessor
 
 from .inp.button import Button;
 from .inp.filepicker import FilePicker;
+from .inp.dropdown import Dropdown, Dropdown_item;
 
 from .interface.messagebox import MessageBox
 from .interface.preview import Preview;
+
 
 import cv2 as cv
 
@@ -20,7 +22,7 @@ class FaceSwapPanel(QtWidgets.QWidget):
         self.mb = MessageBox();
         
         layout = QtWidgets.QVBoxLayout();
-        
+        layout.setSpacing(0)
 
         self.widgets = {}
 
@@ -29,6 +31,11 @@ class FaceSwapPanel(QtWidgets.QWidget):
         stop_button = Button(title="Stop", method=self.stop)
         stop_button.setObjectName("stop-button");
         stop_button.setEnabled(False);
+        items = [];
+        for x in range(1,6):
+            item = Dropdown_item("Camera Num." + str(x));
+            items.append(item);
+        dropdown = Dropdown(items, title="Camera index:");
 
         file_picker = FilePicker("Pick the target face:");
 
@@ -36,6 +43,7 @@ class FaceSwapPanel(QtWidgets.QWidget):
         
         self.widgets['startB'] = start_button
         self.widgets['stopB'] = stop_button
+        self.widgets['dropdown'] = dropdown;
         self.widgets['fpicker'] = file_picker;
         self.widgets['preview'] = preview
         
@@ -50,7 +58,10 @@ class FaceSwapPanel(QtWidgets.QWidget):
         if target_face is None:
             self.mb.error("No file has been selected!");
             return
-        self.fp.start(target_face=target_face);
+        
+        target_text, target_index = self.widgets['dropdown'].selected_item()
+        
+        self.fp.start(target_face=target_face, target_src=target_index);
         self.timer.start(1);
 
         self.widgets['startB'].setEnabled(False);

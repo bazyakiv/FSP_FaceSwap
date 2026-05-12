@@ -14,14 +14,14 @@ class FaceProcessor:
         self.fs = FaceSwap();
         
 
-    def start(self, target_face):
+    def start(self, target_face, target_src = 0):
         if not self.__stopped:
             print("Face processing is already running!");
             return;
 
         self.__stopped = False;
         self.fs.read_image(target_face);
-        self.vs.start();
+        self.vs.start(target_src);
         self.fd.start();
         self.__thread = threading.Thread(target = self.update,args=())
         self.__thread.daemon = True;
