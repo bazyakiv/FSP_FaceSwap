@@ -1,8 +1,8 @@
 import cv2 as cv
 import threading 
 class VideoStream:
-    def __init__(self, src=0):
-        self.src = src
+    def __init__(self):
+       
         self.__capture = None
         self.__stopped = True
         self.frame = None
@@ -10,13 +10,13 @@ class VideoStream:
         self.__thread = None
         
 
-    def start(self):
+    def start(self, src):
         if not self.__stopped:
             print("Capture is already running!");
             return;
 
         
-        self.__capture = cv.VideoCapture(self.src)
+        self.__capture = cv.VideoCapture(src)
         
         if(not self.__capture.isOpened):
             print("Could not open the Camera!");

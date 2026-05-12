@@ -118,8 +118,8 @@ class FaceSwap:
 
     def update(self, detection_result: FaceLandmarkerResult, frame): # pyright: ignore[reportInvalidTypeForm]
         if detection_result is None or frame is None or not self.image_processed or len(self.triangles) == 0:
-            return;
-
+            return frame;
+       
         faces = detection_result.face_landmarks # face detection face landmarks
 
         try:
