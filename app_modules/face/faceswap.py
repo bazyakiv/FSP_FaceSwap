@@ -92,7 +92,7 @@ class FaceSwap:
             p2 = (int(triangle[2]), int(triangle[3]))
             p3 = (int(triangle[4]), int(triangle[5]))
             points = [p1,p2,p3];
-            center = np.mean([p1,p2,p3], axis=0)
+            
        
             
             success = True;
